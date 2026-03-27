@@ -4,7 +4,6 @@ def extract_schema(db_url: str) -> dict:
     engine = create_engine(db_url)
     inspector = inspect(engine)
     schema = {}
-
     for table_name in inspector.get_table_names():
         columns = []
         for col in inspector.get_columns(table_name):

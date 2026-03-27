@@ -1,6 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from services.ai_service import natural_language_to_sql
+from services.ai_service import convert_nl_to_sql
 
 router = APIRouter()
 
@@ -9,5 +9,8 @@ class NLRequest(BaseModel):
     schema: dict
 
 @router.post("/convert")
-def convert_nl_to_sql(req: NLRequest):
-    return natural_language_to_sql(req.question, req.schema)
+def convert(req: NLRequest):
+    try:
+        return convert_nl_to_sql(req.question, req.schema)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

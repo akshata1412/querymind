@@ -1,6 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from services.ai_service import calculate_health_score
+from services.ai_service import score_health
 
 router = APIRouter()
 
@@ -8,5 +8,8 @@ class SchemaRequest(BaseModel):
     schema: dict
 
 @router.post("/score")
-def get_health_score(req: SchemaRequest):
-    return calculate_health_score(req.schema)
+def health_score(req: SchemaRequest):
+    try:
+        return score_health(req.schema)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
