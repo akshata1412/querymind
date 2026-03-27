@@ -18,4 +18,4 @@ conn.commit()
 conn.close()
 
 print("Database created: olist.db")
-print("Table 'customers' loaded successfully!")
+print("Table 'customers' loaded successfully!") 

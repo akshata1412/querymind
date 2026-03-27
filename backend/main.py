@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 from routers import schema, dictionary, er_diagram, chat, nl_sql, health, pii
 
+load_dotenv()
 app = FastAPI(title="QueryMind API", version="1.0.0")
 
 app.add_middleware(

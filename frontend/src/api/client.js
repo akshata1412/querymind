@@ -13,3 +13,11 @@ export const sendChat       = (question, schema, history) => API.post("/chat/mes
 export const convertNLSQL   = (question, schema) => API.post("/nlsql/convert", { question, schema });
 export const getHealthScore = (schema) => API.post("/health/score", { schema });
 export const getPIIReport   = (schema) => API.post("/pii/detect", { schema });
+
+export const uploadCSV = (files) => {
+  const formData = new FormData();
+  files.forEach(file => formData.append('files', file));
+  return API.post("/schema/upload-csv", formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+};
