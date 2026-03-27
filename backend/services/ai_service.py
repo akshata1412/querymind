@@ -1,115 +1,59 @@
-import anthropic
-import json
 import os
+import json
+from groq import Groq
 
-client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+# Initialize Groq
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+MODEL = "llama-3.3-70b-versatile" # This model is powerful and free
 
 def safe_json_parse(text: str) -> dict:
     text = text.strip()
-    if text.startswith("```"):
-        parts = text.split("```")
-        text = parts[1]
+    if "```" in text:
+        text = text.split("```")[1]
         if text.startswith("json"):
             text = text[4:]
     return json.loads(text.strip())
 
-def call_claude(system_prompt: str, user_prompt: str, max_tokens: int = 2048) -> str:
-    message = client.messages.create(
-        model="claude-sonnet-4-5",
-        max_tokens=max_tokens,
-        system=system_prompt,
-        messages=[{"role": "user", "content": user_prompt}]
-    )
-    return message.content[0].text
+def call_groq(system_prompt: str, user_prompt: str, is_json: bool = False) -> str:
+    params = {
+        "model": MODEL,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+    }
+    if is_json:
+        params["response_format"] = {"type": "json_object"}
+    
+    completion = client.chat.completions.create(**params)
+    return completion.choices[0].message.content
 
 def generate_data_dictionary(schema: dict) -> dict:
-    schema_text = json.dumps(schema, indent=2)
-    system = """You are a database documentation expert. Given a database schema,
-generate clear, concise human-readable descriptions for each table and column.
-Respond ONLY with valid JSON in this exact format:
-{
-  "database_summary": "string",
-  "tables": {
-    "table_name": {
-      "description": "string",
-      "business_purpose": "string",
-      "columns": {
-        "column_name": "string description"
-      }
-    }
-  }
-}"""
-    result = call_claude(system, f"Generate data dictionary for:\n{schema_text}")
+    system = "You are a DB expert. Return a data dictionary in JSON format."
+    result = call_groq(system, f"Schema: {json.dumps(schema)}", is_json=True)
     return safe_json_parse(result)
 
 def natural_language_to_sql(question: str, schema: dict) -> dict:
-    schema_text = json.dumps(schema, indent=2)
-    system = """You are an expert SQL developer. Convert natural language to SQL.
-Respond ONLY with valid JSON:
-{
-  "sql": "SELECT ...",
-  "explanation": "string",
-  "tables_used": ["table1"],
-  "confidence": 0.95
-}"""
-    result = call_claude(
-        system,
-        f"Schema:\n{schema_text}\n\nQuestion: {question}"
-    )
+    system = "Convert NL to SQL. Return ONLY JSON: {'sql': '', 'explanation': '', 'confidence': 0.9}"
+    result = call_groq(system, f"Schema: {json.dumps(schema)}\nQ: {question}", is_json=True)
     return safe_json_parse(result)
 
 def chat_about_database(question: str, schema: dict, history: list) -> str:
-    schema_text = json.dumps(schema, indent=2)
-    system = f"""You are QueryMind, an expert AI database assistant.
-You have access to this database schema:
-{schema_text}
-Answer questions clearly and helpfully. Reference specific tables and columns when relevant."""
-    messages = history + [{"role": "user", "content": question}]
-    message = client.messages.create(
-        model="claude-sonnet-4-5",
-        max_tokens=1024,
-        system=system,
-        messages=messages
-    )
-    return message.content[0].text
+    system = f"You are QueryMind AI. Schema: {json.dumps(schema)}"
+    messages = [{"role": "system", "content": system}]
+    for msg in history:
+        messages.append({"role": msg["role"], "content": msg["content"]})
+    messages.append({"role": "user", "content": question})
+    
+    completion = client.chat.completions.create(model=MODEL, messages=messages)
+    return completion.choices[0].message.content
 
 def calculate_health_score(schema: dict) -> dict:
-    schema_text = json.dumps(schema, indent=2)
-    system = """You are a database architect. Analyze schema quality.
-Respond ONLY with valid JSON:
-{
-  "overall_score": 85,
-  "grade": "B+",
-  "categories": {
-    "naming_conventions": {"score": 90, "issues": []},
-    "normalization": {"score": 80, "issues": ["string"]},
-    "indexing": {"score": 75, "issues": ["string"]},
-    "relationships": {"score": 95, "issues": []},
-    "documentation": {"score": 70, "issues": ["string"]}
-  },
-  "recommendations": ["string"],
-  "critical_issues": ["string"]
-}"""
-    result = call_claude(system, f"Analyze schema health:\n{schema_text}")
+    system = "Analyze DB health for a radar chart. Return ONLY JSON."
+    result = call_groq(system, f"Schema: {json.dumps(schema)}", is_json=True)
     return safe_json_parse(result)
 
 def detect_pii(schema: dict) -> dict:
-    schema_text = json.dumps(schema, indent=2)
-    system = """You are a data privacy expert. Identify PII and sensitive data fields.
-Respond ONLY with valid JSON:
-{
-  "risk_level": "HIGH",
-  "pii_fields": [
-    {
-      "table": "string",
-      "column": "string",
-      "pii_type": "string",
-      "risk": "HIGH",
-      "recommendation": "string"
-    }
-  ],
-  "compliance_flags": ["GDPR", "CCPA"],
-  "summary": "string"
-}"""
-    result = call_claude(system, f"Detect PII in schema:\n{schema_text}")
+    system = "Identify PII and risk levels. Return ONLY JSON."
+    result = call_groq(system, f"Schema: {json.dumps(schema)}", is_json=True)
     return safe_json_parse(result)
