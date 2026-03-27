@@ -6,10 +6,10 @@ let _schema = null;
 export const setSchema = (s) => (_schema = s);
 export const getSchema = () => _schema;
 
-export const connectDB     = (db_url) => API.post("/schema/connect", { db_url });
-export const getDictionary = (schema) => API.post("/dictionary/generate", { schema });
-export const getERDiagram  = (schema) => API.post("/er/generate", { schema });
-export const sendChat      = (question, schema, history) => API.post("/chat/message", { question, schema, history });
-export const convertNLSQL  = (question, schema) => API.post("/nlsql/convert", { question, schema });
+export const connectDB      = (db_url) => API.post("/schema/connect", { db_url });
+export const getDictionary  = (schema) => API.post("/dictionary/generate", { schema });
+export const getERDiagram   = (schema) => API.post("/er/generate", { schema });
+export const sendChat       = (question, schema, history) => API.post("/chat/message", { question, schema, history });
+export const convertNLSQL   = (question, schema) => API.post("/nlsql/convert", { question, schema });
 export const getHealthScore = (schema) => API.post("/health/score", { schema });
 export const getPIIReport   = (schema) => API.post("/pii/detect", { schema });
