@@ -1,54 +1,91 @@
-import { Search, Bell, LogOut, ChevronDown } from "lucide-react"
+import { Search, Bell, Layers, GitCompare, LogOut } from "lucide-react"
 
-export default function Navbar({ dbUrl, onDisconnect }) {
-  const dbName = dbUrl.split("/").pop() || dbUrl.split("@").pop() || "Database"
+export default function Navbar({ dbUrl, onDisconnect, activeTab }) {
+  const dbName = dbUrl ? (dbUrl.split("/").pop() || dbUrl.split("@").pop() || "Database") : "prod_v4_core"
 
   return (
-    <header className="flex items-center justify-between h-16 px-6 bg-card border-b border-border">
-      {/* Left: Search */}
-      <div className="flex items-center flex-1 max-w-md">
-        <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+    <header 
+      className="flex items-center justify-between h-14 px-6"
+      style={{ backgroundColor: 'var(--surface)' }}
+    >
+      {/* Left: Logo + Search */}
+      <div className="flex items-center gap-6">
+        <h1 className="font-display text-lg font-bold" style={{ color: 'var(--on-surface)' }}>
+          QueryMind
+        </h1>
+        
+        <div className="relative w-72">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: 'var(--on-surface-dim)' }} />
           <input
             type="text"
-            placeholder="Search tables, columns, queries..."
-            className="w-full h-10 pl-10 pr-4 text-sm bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+            placeholder="Search schema or queries..."
+            className="w-full h-9 pl-10 pr-4 text-sm rounded-lg transition-all focus:outline-none"
+            style={{ 
+              backgroundColor: 'var(--surface-container-low)',
+              color: 'var(--on-surface)',
+              border: '1px solid rgba(64, 72, 93, 0.15)'
+            }}
           />
-          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground bg-background rounded border border-border">
-            /
-          </kbd>
         </div>
       </div>
 
-      {/* Center: Database Info */}
-      <div className="flex items-center gap-2 px-4">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted border border-border">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-sm font-medium text-foreground">{dbName}</span>
-          <ChevronDown className="w-3 h-3 text-muted-foreground" />
+      {/* Center: Navigation Tabs (for Health Score page) */}
+      {activeTab === 'health' && (
+        <div className="flex items-center gap-1">
+          {['Overview', 'Deep Analysis', 'History'].map((tab, i) => (
+            <button
+              key={tab}
+              className="px-4 py-1.5 text-sm font-medium rounded-lg transition-colors"
+              style={{
+                color: i === 0 ? 'var(--on-surface)' : 'var(--on-surface-variant)',
+                backgroundColor: i === 0 ? 'var(--surface-container)' : 'transparent'
+              }}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
-      </div>
+      )}
 
       {/* Right: Actions */}
-      <div className="flex items-center gap-4">
-        {/* Notifications */}
-        <button className="relative p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+      <div className="flex items-center gap-3">
+        {/* Icon buttons */}
+        <button 
+          className="p-2 rounded-lg transition-colors hover:bg-[var(--surface-container)]"
+          style={{ color: 'var(--on-surface-variant)' }}
+        >
+          <Layers className="w-5 h-5" />
+        </button>
+        
+        <button 
+          className="p-2 rounded-lg transition-colors hover:bg-[var(--surface-container)]"
+          style={{ color: 'var(--on-surface-variant)' }}
+        >
+          <GitCompare className="w-5 h-5" />
+        </button>
+        
+        <button 
+          className="relative p-2 rounded-lg transition-colors hover:bg-[var(--surface-container)]"
+          style={{ color: 'var(--on-surface-variant)' }}
+        >
           <Bell className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-secondary rounded-full" />
+          <span 
+            className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
+            style={{ backgroundColor: 'var(--secondary)' }}
+          />
         </button>
 
-        {/* Profile / Disconnect */}
-        <div className="flex items-center gap-3 pl-4 border-l border-border">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-xs font-bold text-primary-foreground">
+        {/* Profile */}
+        <div className="flex items-center gap-2 ml-2">
+          <div 
+            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+            style={{ 
+              background: 'linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%)',
+              color: 'var(--surface)'
+            }}
+          >
             Q
           </div>
-          <button
-            onClick={onDisconnect}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-destructive rounded-lg hover:bg-destructive/10 transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            Disconnect
-          </button>
         </div>
       </div>
     </header>
