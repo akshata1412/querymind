@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { Toaster } from "react-hot-toast"
 import ConnectDB from "./components/ConnectDB"
@@ -9,20 +8,20 @@ export default function App() {
   const [dbUrl, setDbUrl] = useState("")
  
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#060e20", color: "#dee5ff", fontFamily: "Inter, sans-serif" }}>
+    <div className="min-h-screen bg-background text-foreground font-sans">
       <Toaster
         position="top-right"
         toastOptions={{
           style: {
-            background: "#0f1930",
-            color: "#dee5ff",
-            border: "1px solid rgba(64,72,93,0.3)",
+            background: "hsl(222, 43%, 8%)",
+            color: "hsl(226, 100%, 94%)",
+            border: "1px solid hsl(224, 20%, 25%)",
             borderRadius: "0.5rem",
             fontFamily: "Inter, sans-serif",
             fontSize: "14px"
           },
-          success: { iconTheme: { primary: "#53ddfc", secondary: "#060e20" } },
-          error: { iconTheme: { primary: "#ff6e84", secondary: "#060e20" } }
+          success: { iconTheme: { primary: "hsl(188, 95%, 66%)", secondary: "hsl(222, 47%, 5%)" } },
+          error: { iconTheme: { primary: "hsl(351, 100%, 72%)", secondary: "hsl(222, 47%, 5%)" } }
         }}
       />
       {!schema ? (
